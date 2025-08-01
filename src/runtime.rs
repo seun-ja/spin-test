@@ -113,8 +113,6 @@ impl Runtime {
                             format!("failed to read glob entry for pattern '{p}'")
                         })?;
 
-                        // Host path is the absolute path to the file
-                        let host_path = self.manifest.absolute_from(host_path);
                         // If the file among list of files to be excluded, skip it
                         if self
                             .manifest
@@ -124,6 +122,10 @@ impl Runtime {
                         {
                             continue;
                         }
+
+                        // Host path is the absolute path to the file
+                        let host_path = self.manifest.absolute_from(host_path);
+
                         // Only add files
                         if !host_path.is_file() {
                             continue;
@@ -147,16 +149,13 @@ impl Runtime {
                             .strip_prefix('/')
                             .unwrap_or(destination.as_str())
                     );
-                    let host_path = self.manifest.absolute_from(source);
+
                     // If the file among list of files to be excluded, skip it
-                    if self
-                        .manifest
-                        .component()
-                        .exclude_files
-                        .contains(&host_path.display().to_string())
-                    {
+                    if self.manifest.component().exclude_files.contains(source) {
                         continue;
                     }
+
+                    let host_path = self.manifest.absolute_from(source);
 
                     // If the host path is a directory, add all files in the directory
                     if host_path.is_dir() {
